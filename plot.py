@@ -127,7 +127,7 @@ def plot_clusters_interactive(df, X, *, title_col="title", hover_cols=None):
             "paper_link",  # [6]
             "link_label",  # [7]
         ],
-        title="Paper clusters (based on titles)",
+        title="Paper clusters",
     )
 
     fig.update_traces(
@@ -144,24 +144,54 @@ def plot_clusters_interactive(df, X, *, title_col="title", hover_cols=None):
             "<extra></extra>"
         ),
     )
+    # Make legend shorter: "Cluster 1" -> "1"
+    for tr in fig.data:
+        name = str(tr.name)
+        if name.lower().startswith("cluster"):
+            tr.name = name.replace("Cluster", "").strip()
+
+    # k = number of clusters (legend items)
+    k = plot_df["cluster_legend"].nunique()
+    base_b = 40  # base bottom margin
+    per_cluster = 10  # height each cluster legend
+    bottom_margin = base_b + k * per_cluster
+    # Set a maximum
+    bottom_margin = min(bottom_margin, 220)
+
     fig.update_layout(
+        legend_title_text="Cluster",
         legend=dict(
-            orientation="h",  # horizontal
+            orientation="v",  # horizontal
             yanchor="top",
-            y=-0.15,
-            xanchor="center",
-            x=0.5,
+            y=-0.05,
+            xanchor="left",
+            x=0.01,
+            itemsizing="constant",
+            font=dict(size=11),
         ),
         hovermode="closest",
         dragmode="pan",
         margin=dict(
-            l=10,
-            r=10,
+            l=5,
+            r=5,
             t=60,
-            b=80,
+            b=bottom_margin,
         ),
-        legend_title_text="Cluster",
-        height=650,
+        height=600,
+        xaxis=dict(
+            title=None,
+            showticklabels=False,
+            showgrid=True,
+            zeroline=False,
+            showline=False,
+        ),
+        yaxis=dict(
+            title=None,
+            showticklabels=False,
+            showgrid=True,
+            zeroline=False,
+            showline=False,
+        ),
     )
 
     return fig
@@ -187,15 +217,19 @@ def plot_publisher_interactive(counts, publisher_order, top_n=8):
         height=450 + 25 * top_n,
         xaxis_title="Publisher",
         yaxis_title="Number of papers",
+        margin=dict(
+            l=5,
+            r=5,
+            t=100,
+            b=60,
+        ),
         legend_title_text="Article type",
         legend=dict(
-            x=0.85,
-            y=0.99,
-            xanchor="right",
-            yanchor="top",
-            bgcolor="rgba(255,255,255,0.75)",
-            bordercolor="rgba(0,0,0,0.2)",
-            borderwidth=1,
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="center",
+            x=0.5,
         ),
         dragmode="pan",
     )

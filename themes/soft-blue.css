@@ -1,12 +1,12 @@
 /* themes/soft-blue.css */
 
 :root {
-    --bg: #f2f6fb;                 /* soft blue-gray background */
-    --card: #ffffff;               /* cards */
-    --text: #1f2937;               /* main text */
-    --muted: #64748b;              /* secondary text */
+    --bg: #f2f6fb; /* soft blue-gray background */
+    --card: #ffffff; /* cards */
+    --text: #1f2937; /* main text */
+    --muted: #64748b; /* secondary text */
     --border: rgba(30, 58, 138, 0.12);
-    --accent: #2563eb;             /* research blue */
+    --accent: #2563eb; /* research blue */
 }
 
 html, body {
@@ -15,9 +15,9 @@ html, body {
     background: var(--bg);
     color: var(--text);
     font-family: ui-sans-serif, system-ui, -apple-system,
-        Segoe UI, Roboto, Helvetica, Arial,
-        "Apple Color Emoji", "Segoe UI Emoji";
-    line-height: 1.5;
+    Segoe UI, Roboto, Helvetica, Arial,
+    "Apple Color Emoji", "Segoe UI Emoji";
+    line-height: 1.45;
 }
 
 a {
@@ -59,7 +59,7 @@ h1 {
 .stats {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 14px;
+    gap: 12px;
     margin: 18px 0 22px;
 }
 
@@ -103,7 +103,7 @@ h1 {
     border: 1px solid var(--border);
     background: var(--card);
     border-radius: 16px;
-    padding: 16px;
+    padding: 14px;
     min-width: 0;
 }
 
@@ -142,32 +142,24 @@ h1 {
 
 .plot-frame {
     width: 100%;
-    min-width: 550px;
+    min-width: 0;
     min-height: 700px;
-    border: 1px solid var(--border);
+    border: 0;
     border-radius: 12px;
-    background: #f8fbff;
+    background: #fff;
 }
 
 @media (max-width: 520px) {
-    .plot-wrap {
-        height: 570px;
-    }
-
     .plot-frame {
-        transform: scale(0.82);
-        transform-origin: top left;
+        height: 560px !important;
+        min-height: 200px !important;
     }
 }
 
 @media (max-width: 375px) {
-    .plot-wrap {
-        height: 500px;
-    }
-
     .plot-frame {
-        transform: scale(0.72);
-        transform-origin: top left;
+        height: 480px !important;
+        min-height: 200px !important;
     }
 }
 
@@ -220,6 +212,15 @@ h1 {
     }
 }
 
+.cluster-block {
+    margin-top: 14px;
+}
+
+.cluster-title {
+    margin: 10px 0 8px;
+    font-size: 16px;
+}
+
 /* Details / Collapsible */
 
 .details-card {
@@ -237,7 +238,7 @@ h1 {
     align-items: baseline;
     justify-content: space-between;
     gap: 14px;
-    padding: 16px 18px;
+    padding: 14px 16px;
     user-select: none;
 }
 
@@ -266,13 +267,13 @@ h1 {
 }
 
 .details-body {
-    padding: 0 18px 18px;
+    padding: 0 16px 16px;
 }
 
 .details-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 18px;
+    gap: 16px;
 }
 
 @media (max-width: 900px) {
