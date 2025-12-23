@@ -6,6 +6,7 @@ from typing import List, Optional
 from datetime import datetime, date, timedelta
 from pathlib import Path
 import yaml
+import math
 
 import pandas as pd
 import re
@@ -193,4 +194,36 @@ def add_followed_author_flags(
         lambda xs: ", ".join(xs) if xs else ""
     )
 
+    return df
+
+
+def add_top_score_flag(
+    df: pd.DataFrame,
+    *,
+    score_col: str = "score",
+    frac: float = 0.10,
+    out_col: str = "is_top_score",
+) -> pd.DataFrame:
+    """
+    Mark the top 'frac' papers (e.g. 0.10 = 10%) by Crossref score within this dataframe.
+    """
+    df = df.copy()
+
+    if score_col not in df.columns or df.empty:
+        df[out_col] = False
+        return df
+
+    s = pd.to_numeric(df[score_col], errors="coerce")
+    df[out_col] = False
+
+    valid = s.notna()
+    n_valid = int(valid.sum())
+    if n_valid <= 0:
+        return df
+
+    top_n = max(1, int(math.ceil(frac * n_valid)))
+
+    # rank by score desc; stable tie-breaker uses original order
+    idx_top = s[valid].sort_values(ascending=False).head(top_n).index
+    df.loc[idx_top, out_col] = True
     return df

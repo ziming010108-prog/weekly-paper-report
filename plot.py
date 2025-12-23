@@ -127,7 +127,7 @@ def plot_clusters_interactive(df, X, *, title_col="title", hover_cols=None):
             "paper_link",  # [6]
             "link_label",  # [7]
         ],
-        title="Paper clusters (TF-IDF on titles)",
+        title="Paper clusters (based on titles)",
     )
 
     fig.update_traces(
@@ -148,12 +148,18 @@ def plot_clusters_interactive(df, X, *, title_col="title", hover_cols=None):
         legend=dict(
             orientation="h",  # horizontal
             yanchor="top",
-            y=-0.25,
+            y=-0.15,
             xanchor="center",
             x=0.5,
         ),
         hovermode="closest",
-        margin=dict(b=120),
+        dragmode="pan",
+        margin=dict(
+            l=10,
+            r=10,
+            t=60,
+            b=80,
+        ),
         legend_title_text="Cluster",
         height=650,
     )
@@ -178,7 +184,7 @@ def plot_publisher_interactive(counts, publisher_order, top_n=8):
 
     fig.update_layout(
         barmode="stack",
-        height=500 + 30 * top_n,
+        height=450 + 25 * top_n,
         xaxis_title="Publisher",
         yaxis_title="Number of papers",
         legend_title_text="Article type",
@@ -191,6 +197,7 @@ def plot_publisher_interactive(counts, publisher_order, top_n=8):
             bordercolor="rgba(0,0,0,0.2)",
             borderwidth=1,
         ),
+        dragmode="pan",
     )
 
     # Show numbers in the bar

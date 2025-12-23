@@ -152,13 +152,18 @@ def _df_to_html_table(
         border=0,
         classes="table",
     )
+    html_table = f'<div class="table-wrap">{html_table}</div>'
 
     if title:
         return f"<h3>{title}</h3>\n{html_table}"
     return html_table
 
 
-def _embed_iframe(title: str, src_path: str, height: int = 720) -> str:
+def _embed_iframe(
+    title: str,
+    src_path: str,
+    height: str = "auto",
+) -> str:
     """
     Embed an existing HTML file via iframe.
     Uses the given path as-is (relative paths recommended).
@@ -169,16 +174,24 @@ def _embed_iframe(title: str, src_path: str, height: int = 720) -> str:
 
     return f"""
     <section class="card">
-      <div class="card-header">
-        <h2>{title}</h2>
-        <div class="muted">
-            <a href="{src}" target="_blank" rel="noopener noreferrer">
-                <span lang="en">Open Plot</span>
-                <span lang="zh">打开交互图表</span>
-            </a>
+        <div class="card-header">
+            <h2>
+                {title}
+                <span lang="en" class="pill">Double-click to reset axes</span>
+                <span lang="zh" class="pill">双击以重置坐标轴</span>
+                <span lang="en" class="pill">For cluster map: click on a point to open the paper</span>
+                <span lang="zh" class="pill">对于聚类图：点击数据点以打开对应论文</span>
+            </h2>
+            <div class="muted">
+                <a href="{src}" target="_blank" rel="noopener noreferrer">
+                    <span lang="en">Open Plot</span>
+                    <span lang="zh">打开交互图表</span>
+                </a>
+            </div>
         </div>
-      </div>
-      <iframe class="plot-frame" src="{src}" loading="lazy" style="height:{int(height)}px;"></iframe>
+        <div class="plot-wrap">
+            <iframe class="plot-frame" src="{src}" loading="lazy" style="height:{height};"></iframe>
+        </div>
     </section>
     """
 
@@ -255,6 +268,36 @@ def _copy_js(js_src: str, assets_dir: Path, assets_subdir: str) -> str:
     _copy_file(src_abs, dst_abs)
 
     return f"{assets_subdir}/js/{dst_abs.name}"
+
+
+def _format_title_for_top_picks(
+    df: pd.DataFrame,
+    *,
+    flag_col: str = "is_top_score",
+    title_col: str = "title",
+) -> pd.DataFrame:
+    """
+    Escape title text and highlight rows where flag_col is True.
+    Only touches the title column.
+    """
+    if df is None or df.empty or title_col not in df.columns:
+        return df
+
+    df = df.copy()
+    has_flag = flag_col in df.columns
+
+    def fmt(row):
+        t = row.get(title_col, "")
+        t = "" if t is None else str(t)
+        t_esc = _escape(t)
+
+        if has_flag and bool(row.get(flag_col, False)):
+            # bold + a visible star marker
+            return f'<span class="top-score-title">{t_esc}</span>'
+        return t_esc
+
+    df[title_col] = df.apply(fmt, axis=1)
+    return df
 
 
 def report_html(
@@ -384,11 +427,20 @@ def report_html(
         df_top = df_results.copy()
         if "score" in df_top.columns:
             df_top = df_top.sort_values("score", ascending=False)
-        cols_pref = ["title", "container_title", "type", "score", "doi"]
+        cols_pref = ["title", "container_title", "type", "score", "doi", "is_top_score"]
         cols = [c for c in cols_pref if c in df_top.columns]
         if cols:
             df_top = df_top[cols]
         df_top = df_top.head(max(1, int(top_picks_n)))
+
+        # highlight titles for top 10%
+        df_top = _format_title_for_top_picks(
+            df_top, flag_col="is_top_score", title_col="title"
+        )
+        # remove "is_top_score" columns in the html list
+        if "is_top_score" in df_top.columns:
+            df_top = df_top.drop(columns=["is_top_score"])
+
         # translate df header
         df_top = df_with_i18n_headers(df_top)
 
@@ -406,7 +458,7 @@ def report_html(
             sort_col = "score" if "score" in dfc.columns else None  # fallback
 
         # Prefer these columns if they exist
-        cols_pref = ["title", "container_title", "type", "score", "doi"]
+        cols_pref = ["title", "container_title", "type", "score", "doi", "is_top_score"]
         cols_show = [c for c in cols_pref if c in dfc.columns]
 
         blocks = []
@@ -425,6 +477,15 @@ def report_html(
                     label = legends.iloc[0].strip()
 
             table_df = g2[cols_show] if cols_show else g2
+
+            # highlight titles for top 10%
+            table_df = _format_title_for_top_picks(
+                table_df, flag_col="is_top_score", title_col="title"
+            )
+            # remove "is_top_score" columns in the html list
+            if "is_top_score" in table_df.columns:
+                table_df = table_df.drop(columns=["is_top_score"])
+
             # translate df header
             table_df = df_with_i18n_headers(table_df)
 
@@ -503,7 +564,7 @@ def report_html(
             src_abs = _to_abs_path(src)
             src_rel = os.path.relpath(str(src_abs), start=str(out_dir_p.resolve()))
 
-        iframe_html = _embed_iframe(p.title, src_rel, height=740)
+        iframe_html = _embed_iframe(p.title, src_rel, height="auto")
 
         if not cluster_plot_html and _is_cluster_plot(p.title, src):
             cluster_plot_html = iframe_html
@@ -512,16 +573,26 @@ def report_html(
 
     cluster_picks_section_html = f"""
     <section class="card">
-      <div class="card-header">
-        <h2>
-            <span lang="en">Top picks by cluster</span>
-            <span lang="zh">各主题聚类中的精选论文</span>
-        </h2>
-        <div class="muted">
-            <span lang="en">Top {int(cluster_top_picks_n)} per cluster (sorted by {cluster_sort_by})</span>
-            <span lang="zh">每个聚类中的前 {int(cluster_top_picks_n)} 名（按 {cluster_sort_by} 排序）</span>
+        <div class="card-header">
+            <h2>
+                <span lang="en">Top picks by cluster</span>
+                <span lang="zh">各主题聚类中的精选论文</span>
+            </h2>
+            <div class="muted">
+                <span lang="en">Top {int(cluster_top_picks_n)} per cluster (sorted by {cluster_sort_by})</span>
+                <span lang="zh">每个聚类中的前 {int(cluster_top_picks_n)} 名（按 {cluster_sort_by} 排序）</span>
+            </div>
         </div>
-      </div>
+        <div class="muted legend">
+            <span lang="en">
+                <span class="top-score-title">Top 10% papers</span>
+                by Crossref relevance score
+            </span>
+            <span lang="zh">
+                <span class="top-score-title">评分前 10% 的论文</span>
+                （基于 Crossref 相关性评分）
+            </span>
+        </div>
       {cluster_picks_html if cluster_picks_html else '<p><em><span lang="en">No cluster information available.</span><span lang="zh">无可用聚类信息。</span></em></p>'}
     </section>
     """
@@ -660,6 +731,16 @@ def report_html(
                     <span lang="en">Sorted by Crossref relevance score (if available)</span>
                     <span lang="zh">根据 Crossref 相关性评分排序（如可用）</span>
                 </div>
+            </div>
+            <div class="muted legend">
+                <span lang="en">
+                    <span class="top-score-title">Top 10% papers</span>
+                    by Crossref relevance score
+                </span>
+                <span lang="zh">
+                    <span class="top-score-title">评分前 10% 的论文</span>
+                    （基于 Crossref 相关性评分）
+                </span>
             </div>
             {_df_to_html_table(df_top, title=None, max_rows=int(top_picks_n), columns=list(df_top.columns) if not df_top.empty else None)}
             </section>
