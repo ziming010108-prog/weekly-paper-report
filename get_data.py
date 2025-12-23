@@ -135,7 +135,7 @@ def _flatten_crossref_item(item: Dict[str, Any]) -> Dict[str, Any]:
         "indexed_date": indexed_dt,
         "created_date": created_dt,
         "published_online_date": published_online_dt,
-        "issued_date_date": issued_dt,
+        "issued_date": issued_dt,
         "author_count": len(authors),
         "authors": "; ".join(author_names) if author_names else None,
         "orcids": "; ".join(orcids) if orcids else None,
