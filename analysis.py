@@ -3,18 +3,14 @@ Analyse papers collected from Crossref
 """
 
 from datetime import date, timedelta
+from pathlib import Path
 
 from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
-from sklearn.cluster import KMeans
 import pandas as pd
 
 from get_data import get_data_by_orcid
 from stop_words import DOMAIN_STOP_WORDS
-from clustering import (
-    vectorize_titles_tfidf,
-    choose_k_with_silhouette,
-    top_terms_by_cluster,
-)
+from clustering import run_and_compare
 from plot import plot_clusters_interactive, plot_publisher_interactive
 from util import map_article_type, load_followed_authors, add_followed_author_flags
 
@@ -25,49 +21,180 @@ def cluster_analysis(df: pd.DataFrame, path: str = "./html/clusters.html"):
 
     Returns:
         df_out: copy of df with columns ['cluster', 'cluster_legend']
-        cluster_terms: dict[int, list[str]]
-        k: chosen number of clusters
+        best: ClusteringResult (selected best result)
+        all_results: list[ClusteringResult] (kmeans + hdbscan, including metrics)
     """
     print(f"\nClustering on {len(df)} papers")
     df_out = df.copy()
 
+    # same stop-word handling as before
     stop_words = list(ENGLISH_STOP_WORDS.union(DOMAIN_STOP_WORDS))
-    X, vectorizer = vectorize_titles_tfidf(
-        df_out, ngram_range=(1, 2), stop_words=stop_words
+
+    # Run both clusterers and choose the best one using your unified evaluation rules
+    best, all_results, X_tfidf, vectorizer = run_and_compare(
+        df_out,
+        title_col="title",
+        tfidf_ngram_range=(1, 2),
+        tfidf_stop_words=stop_words,
+        # KMeans
+        k_values=list(range(3, 8)),
+        kmeans_use_svd=False,
+        kmeans_svd_components=100,
+        # HDBSCAN
+        hdbscan_min_cluster_size=5,
+        hdbscan_use_svd=True,
+        hdbscan_svd_components=100,
+        # selection rule
+        max_noise_ratio=0.30,
+        silhouette_margin=0.03,
+        random_state=42,
+        top_n_terms=4,  # top picks for each cluster
     )
 
-    k, silhouette_scores = choose_k_with_silhouette(
-        X, k_candidates=range(3, 8), delta=0.02
-    )
-    print(f"\tBest k found (based on silhouette scores): {k}")
+    # Print comparison metrics (helpful in Actions log too)
+    print("\tClustering candidates:")
+    for r in all_results:
+        m = r.metrics
+        print(
+            f"\t- {r.method:7s} | "
+            f"sil={m.get('silhouette_cosine')} | "
+            f"clusters={m.get('n_clusters')} | "
+            f"noise={m.get('noise_ratio')} | "
+            f"min_sz={m.get('min_cluster_size')} | "
+            f"max_share={m.get('max_cluster_share')}"
+        )
+        if r.method == "kmeans":
+            print(f"\t  best_k={m.get('best_k')}")
+    print(f"\tSelected: {best.method}")
 
-    kmeans = KMeans(n_clusters=k, random_state=42)
-    df_out["cluster"] = kmeans.fit_predict(X)
-    print(f"\tK-Means clustering done!")
+    # Apply best labels
+    df_out["cluster"] = best.labels
 
-    cluster_terms = top_terms_by_cluster(df_out, X, vectorizer, top_n=4)
+    # Cluster terms for legend (handle noise cluster -1)
+    cluster_terms = best.cluster_terms
 
-    df_out["cluster_legend"] = df_out["cluster"].map(
-        lambda c: f"Cluster {c}: " + ", ".join(cluster_terms[c])
-    )
+    def _legend_text(c: int) -> str:
+        if c == -1:
+            return "Noise: (unassigned)"
+        terms = cluster_terms.get(int(c), [])
+        return f"Cluster {int(c)}: " + ", ".join(terms)
 
-    fig = plot_clusters_interactive(df_out, X)
-    # Add JavaScript code to open the URL in the plot when clicked.
-    post_script = """
-    var plot = document.getElementsByClassName('plotly-graph-div')[0];
-    if (plot) {
-      plot.on('plotly_click', function(e) {
-        try {
-          var url = e.points[0].customdata[6]; // paper_link
-          if (url && String(url).trim().length > 0) {
-            window.open(url, '_blank');
-          }
-        } catch (err) {
-          // do nothing
-        }
-      });
-    }
+    df_out["cluster_legend"] = df_out["cluster"].map(_legend_text)
+
+    # Plot: keep using TF-IDF for plotting function
+    fig = plot_clusters_interactive(df_out, X_tfidf)
+
+    # post_script = """
+    # var plot = document.getElementsByClassName('plotly-graph-div')[0];
+    # if (plot) {
+    #   plot.on('plotly_click', function(e) {
+    #     try {
+    #       var url = e.points[0].customdata[6]; // paper_link
+    #       if (url && String(url).trim().length > 0) {
+    #         window.open(url, '_blank');
+    #       }
+    #     } catch (err) {
+    #       // do nothing
+    #     }
+    #   });
+    # }
+    # """
+
+    post_script = r"""
+    (function () {
+      var plot = document.getElementsByClassName('plotly-graph-div')[0];
+      if (!plot) return;
+
+      var isTouch =
+        ('ontouchstart' in window) ||
+        (navigator.maxTouchPoints && navigator.maxTouchPoints > 0);
+
+      // Floating "Open paper" button for mobile
+      var btn = document.createElement('a');
+      btn.textContent = 'Open paper';
+      btn.href = '#';
+      btn.target = '_blank';
+      btn.rel = 'noopener noreferrer';
+      btn.style.position = 'fixed';
+      btn.style.right = '16px';
+      btn.style.bottom = '16px';
+      btn.style.zIndex = 9999;
+      btn.style.padding = '10px 12px';
+      btn.style.borderRadius = '999px';
+      btn.style.border = '1px solid rgba(0,0,0,0.15)';
+      btn.style.background = 'rgba(255,255,255,0.95)';
+      btn.style.boxShadow = '0 6px 18px rgba(0,0,0,0.12)';
+      btn.style.fontFamily = 'system-ui, -apple-system, Segoe UI, Roboto, Arial';
+      btn.style.fontSize = '14px';
+      btn.style.color = '#111';
+      btn.style.textDecoration = 'none';
+      btn.style.display = 'none';
+
+      var hint = document.createElement('div');
+      hint.textContent = 'Tap a point, then tap “Open paper”.';
+      hint.style.position = 'fixed';
+      hint.style.right = '16px';
+      hint.style.bottom = '60px';
+      hint.style.zIndex = 9999;
+      hint.style.padding = '8px 10px';
+      hint.style.borderRadius = '10px';
+      hint.style.border = '1px solid rgba(0,0,0,0.12)';
+      hint.style.background = 'rgba(255,255,255,0.95)';
+      hint.style.boxShadow = '0 6px 18px rgba(0,0,0,0.10)';
+      hint.style.fontFamily = btn.style.fontFamily;
+      hint.style.fontSize = '12px';
+      hint.style.color = 'rgba(0,0,0,0.65)';
+      hint.style.display = 'none';
+
+      document.body.appendChild(btn);
+      document.body.appendChild(hint);
+
+      var hideTimer = null;
+      function showMobileUI(url) {
+        if (!url) return;
+        btn.href = url;
+        btn.style.display = 'inline-block';
+        hint.style.display = 'block';
+
+        if (hideTimer) clearTimeout(hideTimer);
+        hideTimer = setTimeout(function () {
+          btn.style.display = 'none';
+          hint.style.display = 'none';
+        }, 10000);
+      }
+
+      if (!isTouch) {
+        // Desktop: single click opens directly
+        plot.on('plotly_click', function (e) {
+          try {
+            var url = e.points[0].customdata[6]; // paper_link
+            if (url && String(url).trim().length > 0) {
+              window.open(url, '_blank', 'noopener');
+            }
+          } catch (err) {}
+        });
+      } else {
+        // Mobile: tap point => show "Open paper" button (reliable)
+        plot.on('plotly_click', function (e) {
+          try {
+            var url = e.points[0].customdata[6];
+            if (url && String(url).trim().length > 0) {
+              showMobileUI(url);
+            }
+          } catch (err) {}
+        });
+
+        // Optional: tap outside to hide
+        document.addEventListener('touchstart', function (ev) {
+          // if tap is not on button, don't immediately hide (avoid conflict)
+          // but you can hide on a second tap elsewhere if you want.
+        }, { passive: true });
+      }
+    })();
     """
+    # make sure ./html exists
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
+
     fig.write_html(
         path,
         include_plotlyjs="cdn",
@@ -76,7 +203,7 @@ def cluster_analysis(df: pd.DataFrame, path: str = "./html/clusters.html"):
     )
     print(f"\tSaved clusters interactive html file: {path}")
 
-    return df_out, cluster_terms, k
+    return df_out, best, all_results
 
 
 def top_picks_by_cluster(
@@ -143,6 +270,10 @@ def publisher_analysis(
     ]
 
     fig = plot_publisher_interactive(counts, publisher_order, top_n)
+
+    # make sure ./html exists
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
+
     fig.write_html(path, include_plotlyjs="cdn")
     print(f"\tSaved publisher interactive html file: {path}")
 

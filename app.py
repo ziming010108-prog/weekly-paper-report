@@ -9,9 +9,10 @@ Weekly Paper Report
 import os
 from datetime import date
 from dotenv import load_dotenv
+from pathlib import Path
 
 from get_data import get_data
-from util import clean_df, last_n_days_iso, load_keywords, i18n
+from util import clean_df, last_n_days_iso, load_keywords, i18n, add_top_score_flag
 from analysis import cluster_analysis, publisher_analysis, followed_authors_analysis
 from report import report_html, PlotEmbed
 
@@ -40,8 +41,11 @@ ROWS_PER_AUTHOR = 20  # rows
 ## Search date
 DAYS_BACK = 7  # days
 
-## Report theme
+## Report theme, see /themes
 THEME = "light"
+# THEME = "dark"
+# THEME = "paper-light"
+# THEME = "soft-blue"
 
 if __name__ == "__main__":
     today = date.today().isoformat()
@@ -52,6 +56,10 @@ if __name__ == "__main__":
         print("WPR_MAILTO loaded OK.")
     else:
         print("WPR_MAILTO not set (mailto will be omitted).")
+
+    # make sure ./html and ./report exists
+    Path("./html").mkdir(parents=True, exist_ok=True)
+    Path("./report").mkdir(parents=True, exist_ok=True)
 
     # Load keywords from YAML
     keywords = load_keywords(KEYWORDS_PATH)
@@ -71,9 +79,27 @@ if __name__ == "__main__":
     )
     # Clean data
     df_cleaned = clean_df(df)
+    # Mark papers with top 10% Crossref relevance score
+    df_cleaned = add_top_score_flag(df_cleaned, frac=0.10, out_col="is_top_score")
 
     # Cluster analysis
-    df_clustered, cluster_terms, k = cluster_analysis(df_cleaned)
+    df_clustered, best, all_results = cluster_analysis(df_cleaned)
+    ## log metrics
+    print("\nClustering comparison:")
+    for r in all_results:
+        m = r.metrics
+        print(
+            f"\t- {r.method:7s}\n"
+            f"\tsil={m.get('silhouette_cosine')}\n"
+            f"\tclusters={m.get('n_clusters')}\n"
+            f"\tnoise={m.get('noise_ratio')}\n"
+            f"\tmin_sz={m.get('min_cluster_size')}\n"
+            f"\tmax_share={m.get('max_cluster_share')}\n"
+        )
+    if best.method == "kmeans":
+        print(f"Selected: K-Means (k={best.metrics.get('best_k')})")
+    else:
+        print("Selected: HDBSCAN")
 
     # Publisher analysis
     publisher_analysis(df_cleaned)
@@ -100,10 +126,10 @@ if __name__ == "__main__":
                 "./html/publishers.html",
             ),
         ],
-        report_title=i18n("Weekly Paper Report", "每周论文报告"),
+        report_title="Weekly Paper Report",
         subtitle=f"{today}",
         top_picks_n=10,
-        cluster_top_picks_n=5,
+        cluster_top_picks_n=4,
         theme=THEME,
         keywords=keywords,
         followed_authors_path=FOLLOWED_AUTHORS_PATH,
