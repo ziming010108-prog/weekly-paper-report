@@ -2,7 +2,12 @@ name: Build and Deploy Report to GitHub Pages
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "master"]
+  schedule:
+    # every Monday at 02:00 UTC
+    # German time: 03:00 in winter / 04:00 in summer
+    # China time: 10:00
+    - cron: "0 6 * * 1"
   workflow_dispatch:
 
 permissions:
