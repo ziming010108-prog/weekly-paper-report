@@ -1,12 +1,12 @@
-/* themes/light.css */
+/* themes/soft-blue.css */
 
 :root {
-    --bg: #ffffff;
-    --card: #f7f9fc;
-    --text: #1f2937;
-    --muted: #6b7280;
-    --border: rgba(0, 0, 0, 0.08);
-    --accent: #2563eb;
+    --bg: #f2f6fb;                 /* soft blue-gray background */
+    --card: #ffffff;               /* cards */
+    --text: #1f2937;               /* main text */
+    --muted: #64748b;              /* secondary text */
+    --border: rgba(30, 58, 138, 0.12);
+    --accent: #2563eb;             /* research blue */
 }
 
 html, body {
@@ -15,9 +15,9 @@ html, body {
     background: var(--bg);
     color: var(--text);
     font-family: ui-sans-serif, system-ui, -apple-system,
-    Segoe UI, Roboto, Helvetica, Arial,
-    "Apple Color Emoji", "Segoe UI Emoji";
-    line-height: 1.45;
+        Segoe UI, Roboto, Helvetica, Arial,
+        "Apple Color Emoji", "Segoe UI Emoji";
+    line-height: 1.5;
 }
 
 a {
@@ -34,6 +34,8 @@ a:hover {
     margin: 0 auto;
     padding: 24px 18px 60px;
 }
+
+/* Header */
 
 header {
     display: flex;
@@ -52,10 +54,12 @@ h1 {
     font-size: 14px;
 }
 
+/* Stats */
+
 .stats {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 12px;
+    gap: 14px;
     margin: 18px 0 22px;
 }
 
@@ -77,6 +81,14 @@ h1 {
     margin-top: 6px;
 }
 
+@media (max-width: 860px) {
+    .stats {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Layout */
+
 .grid {
     display: grid;
     grid-template-columns: 1fr;
@@ -91,7 +103,7 @@ h1 {
     border: 1px solid var(--border);
     background: var(--card);
     border-radius: 16px;
-    padding: 14px;
+    padding: 16px;
     min-width: 0;
 }
 
@@ -104,10 +116,6 @@ h1 {
 }
 
 @media (max-width: 860px) {
-    .stats {
-        grid-template-columns: 1fr;
-    }
-
     .card-header {
         flex-direction: column;
         align-items: flex-start;
@@ -124,6 +132,8 @@ h1 {
     font-size: 12px;
 }
 
+/* Plotly */
+
 .plot-wrap {
     width: 100%;
     overflow-x: auto;
@@ -134,9 +144,9 @@ h1 {
     width: 100%;
     min-width: 550px;
     min-height: 700px;
-    border: 0;
+    border: 1px solid var(--border);
     border-radius: 12px;
-    background: #fff;
+    background: #f8fbff;
 }
 
 @media (max-width: 520px) {
@@ -145,7 +155,7 @@ h1 {
     }
 
     .plot-frame {
-        transform: scale(0.8);
+        transform: scale(0.82);
         transform-origin: top left;
     }
 }
@@ -156,10 +166,12 @@ h1 {
     }
 
     .plot-frame {
-        transform: scale(0.7);
+        transform: scale(0.72);
         transform-origin: top left;
     }
 }
+
+/* Tables */
 
 .table {
     width: 100%;
@@ -188,13 +200,15 @@ h1 {
     border-top: 0;
 }
 
+/* Pills / Scores */
+
 .pill {
     display: inline-block;
     padding: 2px 8px;
     border-radius: 999px;
-    background: rgba(37, 99, 235, 0.1);
-    border: 1px solid rgba(37, 99, 235, 0.25);
-    color: var(--accent);
+    background: rgba(37, 99, 235, 0.12);
+    border: 1px solid rgba(37, 99, 235, 0.28);
+    color: #1d4ed8;
     font-size: 12px;
     margin-left: 8px;
 }
@@ -206,23 +220,13 @@ h1 {
     }
 }
 
+/* Details / Collapsible */
 
-
-.cluster-block {
-    margin-top: 14px;
-}
-
-.cluster-title {
-    margin: 10px 0 8px;
-    font-size: 16px;
-}
-
-/* Collapsible details card */
 .details-card {
-    margin: 14px 0 22px 0;
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    border-radius: 14px;
-    background: rgba(255, 255, 255, 0.7);
+    margin: 14px 0 22px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    background: var(--card);
     overflow: hidden;
 }
 
@@ -233,7 +237,7 @@ h1 {
     align-items: baseline;
     justify-content: space-between;
     gap: 14px;
-    padding: 14px 16px;
+    padding: 16px 18px;
     user-select: none;
 }
 
@@ -246,18 +250,15 @@ h1 {
 }
 
 .details-hint {
-    color: rgba(0, 0, 0, 0.55);
+    color: var(--muted);
     font-size: 13px;
 }
 
-/* "+" icon on the right */
 .details-summary::after {
     content: "+";
-    font-weight: 800;
+    font-weight: 700;
     font-size: 18px;
-    line-height: 1;
-    opacity: 0.75;
-    transform: translateY(1px);
+    opacity: 0.6;
 }
 
 .details-card[open] > .details-summary::after {
@@ -265,13 +266,13 @@ h1 {
 }
 
 .details-body {
-    padding: 0 16px 16px;
+    padding: 0 18px 18px;
 }
 
 .details-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 16px;
+    gap: 18px;
 }
 
 @media (max-width: 900px) {
@@ -285,11 +286,12 @@ h1 {
     font-size: 15px;
 }
 
+/* Lists */
+
 .small {
     font-size: 12px;
 }
 
-/* lists */
 .clean-list {
     margin: 6px 0 0;
     padding-left: 18px;
@@ -299,8 +301,8 @@ h1 {
     margin: 4px 0;
 }
 
+/* Tags */
 
-/* tag cloud (simple word cloud) */
 .tag-cloud {
     display: flex;
     flex-wrap: wrap;
@@ -312,20 +314,13 @@ h1 {
     display: inline-block;
     padding: 6px 10px;
     border-radius: 999px;
-    border: 1px solid rgba(0, 0, 0, 0.10);
-    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(37, 99, 235, 0.25);
+    background: rgba(37, 99, 235, 0.08);
     font-weight: 600;
     line-height: 1;
 }
 
-/* Language toggle */
-html[data-lang="en"] [lang="zh"] {
-    display: none !important;
-}
-
-html[data-lang="zh"] [lang="en"] {
-    display: none !important;
-}
+/* Language Switch */
 
 .lang-switch {
     align-self: flex-start;
@@ -333,12 +328,17 @@ html[data-lang="zh"] [lang="en"] {
 
 .lang-select {
     border: 1px solid var(--border);
-    background: #fff;
+    background: #ffffff;
     border-radius: 8px;
     padding: 4px 8px;
     font-size: 12px;
     color: var(--text);
     cursor: pointer;
+}
+
+.lang-select:focus {
+    outline: 2px solid rgba(37, 99, 235, 0.35);
+    outline-offset: 2px;
 }
 
 .sr-only {
@@ -353,7 +353,17 @@ html[data-lang="zh"] [lang="en"] {
     border: 0;
 }
 
-/* Top 10% Crossref score highlight */
+/* i18n */
+
+html[data-lang="en"] [lang="zh"] {
+    display: none !important;
+}
+
+html[data-lang="zh"] [lang="en"] {
+    display: none !important;
+}
+
+/* Top score highlight */
 .top-score-title {
     font-weight: 600;
     padding-left: 0.4em;

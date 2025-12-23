@@ -1,12 +1,13 @@
-/* themes/light.css */
+/* themes/dark.css */
 
 :root {
-    --bg: #ffffff;
-    --card: #f7f9fc;
-    --text: #1f2937;
-    --muted: #6b7280;
-    --border: rgba(0, 0, 0, 0.08);
-    --accent: #2563eb;
+    /* Soft GitHub-dark-ish (not pure black) */
+    --bg: #0f1623; /* page background */
+    --card: #161f2f; /* cards / panels */
+    --text: #d6deea; /* primary text */
+    --muted: #9aa7b8; /* secondary text */
+    --border: rgba(255, 255, 255, 0.12);
+    --accent: #58a6ff; /* link / accent */
 }
 
 html, body {
@@ -136,7 +137,7 @@ h1 {
     min-height: 700px;
     border: 0;
     border-radius: 12px;
-    background: #fff;
+    background: #0b1220;
 }
 
 @media (max-width: 520px) {
@@ -188,12 +189,13 @@ h1 {
     border-top: 0;
 }
 
+/* "pill" labels */
 .pill {
     display: inline-block;
     padding: 2px 8px;
     border-radius: 999px;
-    background: rgba(37, 99, 235, 0.1);
-    border: 1px solid rgba(37, 99, 235, 0.25);
+    background: rgba(88, 166, 255, 0.12);
+    border: 1px solid rgba(88, 166, 255, 0.28);
     color: var(--accent);
     font-size: 12px;
     margin-left: 8px;
@@ -205,8 +207,6 @@ h1 {
         margin-left: 5px;
     }
 }
-
-
 
 .cluster-block {
     margin-top: 14px;
@@ -220,9 +220,9 @@ h1 {
 /* Collapsible details card */
 .details-card {
     margin: 14px 0 22px 0;
-    border: 1px solid rgba(0, 0, 0, 0.08);
+    border: 1px solid var(--border);
     border-radius: 14px;
-    background: rgba(255, 255, 255, 0.7);
+    background: rgba(22, 31, 47, 0.75);
     overflow: hidden;
 }
 
@@ -246,7 +246,7 @@ h1 {
 }
 
 .details-hint {
-    color: rgba(0, 0, 0, 0.55);
+    color: rgba(214, 222, 234, 0.65);
     font-size: 13px;
 }
 
@@ -299,8 +299,7 @@ h1 {
     margin: 4px 0;
 }
 
-
-/* tag cloud (simple word cloud) */
+/* tag cloud */
 .tag-cloud {
     display: flex;
     flex-wrap: wrap;
@@ -312,8 +311,8 @@ h1 {
     display: inline-block;
     padding: 6px 10px;
     border-radius: 999px;
-    border: 1px solid rgba(0, 0, 0, 0.10);
-    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.06);
     font-weight: 600;
     line-height: 1;
 }
@@ -333,12 +332,17 @@ html[data-lang="zh"] [lang="en"] {
 
 .lang-select {
     border: 1px solid var(--border);
-    background: #fff;
+    background: rgba(255, 255, 255, 0.06);
     border-radius: 8px;
     padding: 4px 8px;
     font-size: 12px;
     color: var(--text);
     cursor: pointer;
+}
+
+.lang-select:focus {
+    outline: 2px solid rgba(88, 166, 255, 0.35);
+    outline-offset: 2px;
 }
 
 .sr-only {
