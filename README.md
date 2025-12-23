@@ -1,5 +1,12 @@
 # Weekly Paper Report
 
+![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/hqrrr/weekly-paper-report/update_github_pages.yml)&nbsp;
+![GitHub License](https://img.shields.io/github/license/hqrrr/weekly-paper-report)&nbsp;
+
+> 🔄 Automatically updated every Monday via GitHub Actions
+> 
+> 🌐 Live demo: https://hqrrr.github.io/weekly-paper-report/
+
 ## Overview
 
 <!-- TOC -->
@@ -11,13 +18,13 @@
     * [1) Fork & enable GitHub Actions](#1-fork--enable-github-actions)
     * [2) Configure GitHub Pages](#2-configure-github-pages)
     * [3) Configure your keywords and followed authors](#3-configure-your-keywords-and-followed-authors)
-      * [Example: `keywords.yaml`](#example-keywordsyaml)
-      * [Example: `followed_authors.yaml`](#example-followed_authorsyaml)
     * [4) (Recommended) Set `WPR_MAILTO` as a GitHub Actions secret](#4-recommended-set-wpr_mailto-as-a-github-actions-secret)
+  * [How the "Cluster map" works](#how-the-cluster-map-works)
   * [Responsible use and limitations](#responsible-use-and-limitations)
   * [Customizing the report theme](#customizing-the-report-theme)
     * [Using an existing theme](#using-an-existing-theme)
     * [Adding a new theme](#adding-a-new-theme)
+  * [Local development](#local-development)
   * [License](#license)
 <!-- TOC -->
 
@@ -43,11 +50,19 @@
 
     Outputs a fully self-contained report (`index.html` + assets) that can be hosted on GitHub Pages or shared offline.
 
+[Back to top ↥](#overview)
+
 ## Demo
 
 An example weekly report is available at: [Weekly Paper Report](https://hqrrr.github.io/weekly-paper-report/)
 
-![Demo Screenshot](_pics/demo_screenshot.png)
+<!-- REPORT_UPDATE_START -->
+🕒 Last report update: **never**
+<!-- REPORT_UPDATE_END -->
+
+<img src="_pics/demo_screenshot.png" alt="Demo Screenshot" style="width:350px;">
+
+[Back to top ↥](#overview)
 
 ## How to use
 
@@ -86,7 +101,7 @@ Edit these files in your fork (examples see below):
 
 Commit and push the changes to your default branch to regenerate the report.
 
-#### Example: `keywords.yaml`
+1. Example: `keywords.yaml`
 
 ```yaml
 # List of keywords used for literature search
@@ -100,7 +115,7 @@ keywords:
 > Each keyword is queried against Crossref. 
 > Use full terms and common abbreviations where appropriate.
 
-#### Example: `followed_authors.yaml`
+2. Example: `followed_authors.yaml`
 
 ```yaml
 # List of followed authors
@@ -130,10 +145,37 @@ In your fork:
 
 > **Weekly schedule notes (important)**
 > - The workflow is configured to run on a weekly schedule (via `on: schedule`).
-> - **GitHub may automatically disable scheduled runs for repositories with no activity for ~60 days.**  
->  If your weekly updates stop, simply:
+> - **GitHub may automatically disable scheduled runs for repositories with no activity for ~60 days.**
+> 
+> > This repository performs a small automated update on each run to keep the scheduled workflow active.
+> 
+> If your weekly updates stop, simply:
 > - make a small commit (e.g., edit README), and/or
 > - re-enable the workflow in the **Actions** tab.
+
+[Back to top ↥](#overview)
+
+## How the "Cluster map" works
+
+This **Weekly Paper Report** tool groups papers into rough "topics" based on their titles (not abstracts), by following steps:
+
+1. Text preprocessing + stop words: Weekly Paper Report vectorizes paper titles with TF-IDF and removes:
+   1. scikit-learn's built-in English stop words 
+   2. additional domain stop words (e.g., "study", "method", "analysis", "model", "energy", "system", ...), see `stop_words.py` (you may customize your own stop words).
+   3. `ngram_range = (1, 2)` (unigrams + bigrams)
+2. Two clustering methods are tried:
+   1. **K-Means**: For each *k* ∈ {3,4,5,6,7}, compute cosine silhouette score. Pick the smallest *k* whose silhouette is within a small margin of the best score (preference for simpler clustering).
+   2. **HDBSCAN**: First reduce TF-IDF with TruncatedSVD (default: 100 components) and L2-normalize vectors. Then run HDBSCAN with min_cluster_size = 5.
+3. For each candidate clustering, compute:
+   1. cosine silhouette (computed on non-noise points for HDBSCAN)
+   2. number of clusters (excluding noise)
+   3. noise ratio (fraction of points labeled `-1`)
+   4. min cluster size, max cluster share (to detect overly imbalanced solutions)
+4. Choosing the "best" clustering result. Select the final clustering with a pragmatic rule:
+   1. Reject overly noisy results: if HDBSCAN labels too many points as noise (default `noise_ratio > 0.30`), it won’t be selected.
+   2. Compare cosine silhouette:
+      1. HDBSCAN must outperform K-Means by a small margin (default `+0.03`) to win.
+      2. Otherwise, default to K-Means (more stable and assigns all papers).
 
 ## Responsible use and limitations
 
@@ -163,6 +205,8 @@ Please consider the following points when using or extending it:
 Users are encouraged to treat the generated reports as **decision-support material**
 and to verify important findings through primary sources.
 
+[Back to top ↥](#overview)
+
 ## Customizing the report theme
 
 The visual appearance of the report is controlled by a CSS theme.
@@ -180,6 +224,11 @@ THEME = "light"
 
 Available themes are loaded from the `themes/` directory.
 
+|                     Light                      |                     Dark                      |                     Paper Light                      |                     Soft Blue                      |
+|:----------------------------------------------:|:---------------------------------------------:|:----------------------------------------------------:|:--------------------------------------------------:|
+| <img src="_pics/theme_light.png" width="200"/> | <img src="_pics/theme_dark.png" width="200"/> | <img src="_pics/theme_paper-light.png" width="200"/> | <img src="_pics/theme_soft-blue.png" width="200"/> |
+
+
 ### Adding a new theme
 
 To add a custom theme:
@@ -190,9 +239,34 @@ To add a custom theme:
 
 > If the specified theme name cannot be found, the report will automatically fall back to the default `light` theme.
 
+[Back to top ↥](#overview)
+
+## Local development
+
+You can also generate the report locally without GitHub Actions:
+
+1. Clone the repository:
+    ```
+    git clone https://github.com/hqrrr/weekly-paper-report.git
+    cd weekly-paper-report
+    ```
+2. Create and configure `.env` file (for local runs):
+    ```
+    # .env
+    WPR_MAILTO=youremail@example.com
+    ```
+3. Install dependencies: `pip install -r requirements.txt`
+4. Run the weekly paper report app: `python app.py`
+5. Open the generated report in a browser: `./report/index.html`
+
+> The local workflow is equivalent to the GitHub Actions workflow, except that secrets are provided via `.env`.
+
+[Back to top ↥](#overview)
+
 ## License
 
 This project is licensed under the **MIT License**. See the [LICENSE](./LICENSE) file for details.
 
 The generated reports and retrieved bibliographic metadata are subject to the terms of their respective data providers.
 
+[Back to top ↥](#overview)
