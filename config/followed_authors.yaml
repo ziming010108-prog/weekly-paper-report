@@ -17,6 +17,11 @@ followed_authors:
       - Philomena Bluyssen
       - Philomena M. Bluyssen
 
+  - name: Richard de Dear
+    orcid: "0000-0002-3414-290X"
+    names:
+      - Richard de Dear
+
   - name: Pawel Wargocki
     orcid: "0000-0003-3865-3560"
     names:
@@ -34,8 +39,20 @@ followed_authors:
     names:
       - Dusan Licina
 
+  - name: Federico Tartarini
+    orcid: "0000-0002-8739-5062"
+    names:
+      - Federico Tartarini
+
   - name: Er Ding
     orcid: "0000-0002-4688-0950"
     names:
       - Er Ding
       - E. Ding
+
+  - name: Qirui Huang
+    orcid: "0000-0002-8284-0032"
+    names:
+      - Qirui Huang
+      - Q. Huang
+
