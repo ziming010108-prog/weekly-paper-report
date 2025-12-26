@@ -31,6 +31,7 @@ This tool is ideal for:
     * [2) Configure GitHub Pages](#2-configure-github-pages)
     * [3) Configure your keywords and followed authors](#3-configure-your-keywords-and-followed-authors)
     * [4) (Recommended) Set `WPR_MAILTO` as a GitHub Actions secret](#4-recommended-set-wpr_mailto-as-a-github-actions-secret)
+    * [5) (Optional) Set `TRANSLATION_DEEPL_API_KEY` as a GitHub Actions secret](#5-optional-set-translation_deepl_api_key-as-a-github-actions-secret)
   * [How the "Cluster map" works](#how-the-cluster-map-works)
   * [Responsible use and limitations](#responsible-use-and-limitations)
   * [Customizing the report theme](#customizing-the-report-theme)
