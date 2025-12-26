@@ -15,6 +15,7 @@ from get_data import get_data
 from util import clean_df, last_n_days_iso, load_keywords, i18n, add_top_score_flag
 from analysis import cluster_analysis, publisher_analysis, followed_authors_analysis
 from report import report_html, PlotEmbed
+from translate import DeepLTitleTranslator
 
 # Configuration
 
@@ -58,8 +59,7 @@ THEME = "light"
 
 if __name__ == "__main__":
     today = date.today().isoformat()
-    print(f"::group::Weekly Paper Report Log ({today})")
-    print("=== weekly-paper-report ===")
+    print(f"== Weekly Paper Report ({today}) ==")
     # Environment check
     ## Email
     if EMAIL:
@@ -69,6 +69,15 @@ if __name__ == "__main__":
     ## DeepL translation API key
     if TRANSLATION_DEEPL_API_KEY:
         print("TRANSLATION_DEEPL_API_KEY loaded OK.")
+        try:
+            # Get API usage info
+            t = DeepLTitleTranslator(TRANSLATION_DEEPL_API_KEY, target_lang=TRANSLATION_TARGET_LANGUAGE)
+            usage = t.get_usage()
+            if usage is not None:
+                char_detail = getattr(usage, "_character", None)
+                print("DeepL character usage:", vars(char_detail))
+        except Exception as e:
+            print(f"DeepL usage: unable to query usage ({e.__class__.__name__}: {e})")
     else:
         print("TRANSLATION_DEEPL_API_KEY not set (translation will be deactivated).")
 
@@ -76,6 +85,7 @@ if __name__ == "__main__":
     Path("./html").mkdir(parents=True, exist_ok=True)
     Path("./report").mkdir(parents=True, exist_ok=True)
 
+    print("::group::Detailed Log")
     # Load keywords from YAML
     keywords = load_keywords(KEYWORDS_PATH)
     print("\nKeywords:")
@@ -157,6 +167,6 @@ if __name__ == "__main__":
         translation_target_lang=TRANSLATION_TARGET_LANGUAGE,
     )
 
-    print(f"\n=== Report generated at {report_path} ===")
+    print(f"\n== Report generated at {report_path} ==")
     print("::endgroup::")
     print("::notice::Report successfully generated")

@@ -49,6 +49,20 @@ class DeepLTitleTranslator:
         self._ensure_client()
         return (not self._disabled) and (self._client is not None)
 
+    def get_usage(self):
+        """
+        Return DeepL usage object, or None if unavailable.
+        """
+        self._ensure_client()
+        if not self.enabled:
+            return None
+        try:
+            client = self._client  # type: ignore[assignment]
+            return client.get_usage()
+        except Exception:
+            return None
+
+
     def translate_titles(self, titles: Iterable[str]) -> Dict[str, str]:
         """
         Translate a collection of titles.
