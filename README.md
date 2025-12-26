@@ -64,7 +64,7 @@ This tool is ideal for:
 
 - 🆕 **Paper title translation:**
 
-    Paper titles shown in the report are now automatically translated using the DeepL API. Translation is disabled automatically if no API key is provided. A free DeepL API key is available from the [official DeepL website](https://developers.deepl.com/docs/getting-started/intro), with a monthly quota of **50,000 characters**, which is typically sufficient for a weekly paper report.
+    Paper titles shown in the report are now automatically translated using the DeepL API. Translation is disabled automatically if no API key is provided. A free DeepL API key is available from the [official DeepL website](https://developers.deepl.com/docs/getting-started/intro), with a monthly quota of **500,000 characters**, which is typically sufficient for a weekly paper report.
 
 [Back to top ↥](#overview)
 

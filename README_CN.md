@@ -64,7 +64,7 @@
 
 - 🆕 **论文标题翻译：**
 
-    报告中展示的论文标题现已支持通过 DeepL API 自动翻译。若未提供 API key，该功能将自动禁用。可从 [DeepL 官方网站](https://developers.deepl.com/docs/getting-started/intro) 获取免费的 DeepL API key，免费方案每月提供 **50,000 个字符**的翻译额度，通常已足够用于每周一次的论文周报生成。
+    报告中展示的论文标题现已支持通过 DeepL API 自动翻译。若未提供 API key，该功能将自动禁用。可从 [DeepL 官方网站](https://developers.deepl.com/docs/getting-started/intro) 获取免费的 DeepL API key，免费方案每月提供 **500,000 个字符**的翻译额度，通常已足够用于每周一次的论文周报生成。
 
 
 [返回顶部 ↥](#概览)
