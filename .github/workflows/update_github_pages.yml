@@ -25,6 +25,7 @@ jobs:
     env:
       # Optional: set this in repo Settings -> Secrets and variables -> Actions
       WPR_MAILTO: ${{ secrets.WPR_MAILTO }}
+      TRANSLATION_DEEPL_API_KEY: ${{ secrets.TRANSLATION_DEEPL_API_KEY }}
 
     steps:
       - name: Checkout
