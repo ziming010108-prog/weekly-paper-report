@@ -31,6 +31,7 @@
     * [2）配置 GitHub Pages](#2配置-github-pages)
     * [3）配置关键词与关注作者](#3配置关键词与关注作者)
     * [4）（推荐）设置 `WPR_MAILTO`](#4推荐设置-wpr_mailto)
+    * [5)（可选）设置 `TRANSLATION_DEEPL_API_KEY`](#5可选设置-translation_deepl_api_key)
   * [Cluster map 聚类图工作原理](#cluster-map-聚类图工作原理)
   * [负责任的使用与局限性](#负责任的使用与局限性)
   * [自定义报告主题](#自定义报告主题)
