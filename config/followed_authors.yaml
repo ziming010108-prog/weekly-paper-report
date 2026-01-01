@@ -1,74 +1,10 @@
 # followed_authors.yaml
 followed_authors:
-  - name: Andrew Persily
-    orcid: "0000-0002-9542-3318"
+  - name:Wang Jianguo
+    orcid: "0000-0020-4172-6857"
     names:
-      - Andrew Persily
+      - Wang Jianguo
       - A. Persily
-
-  - name: Shin-ichi Tanabe
-    orcid: "0000-0002-2947-1645"
-    names:
-      - Shin-ichi Tanabe
-      - S.I Tanabe
-
-  - name: Philomena Bluyssen
-    orcid: "0000-0002-5732-5362"
-    names:
-      - Philomena Bluyssen
-      - Philomena M. Bluyssen
-
-  - name: Richard de Dear
-    orcid: "0000-0002-3414-290X"
-    names:
-      - Richard de Dear
-
-  - name: Pawel Wargocki
-    orcid: "0000-0003-3865-3560"
-    names:
-      - Pawel Wargocki
-      - P. Wargocki
-
-  - name: Joseph Allen
-    orcid: "0000-0002-4576-3736"
-    names:
-      - Joseph Allen
-      - Joseph L. Allen
-
-  - name: Dusan Licina
-    orcid: "0000-0001-5945-0872"
-    names:
-      - Dusan Licina
-
-  - name: Federico Tartarini
-    orcid: "0000-0002-8739-5062"
-    names:
-      - Federico Tartarini
-
-  - name: Er Ding
-    orcid: "0000-0002-4688-0950"
-    names:
-      - Er Ding
-      - E. Ding
-
-  - name: Qirui Huang
-    orcid: "0000-0002-8284-0032"
-    names:
-      - Qirui Huang
-      - Q. Huang
-
-  - name: Thomas Parkinson
-    orcid: "0000-0002-0088-8754"
-    names:
-      - Thomas Parkinson
-      - T. Parkinson
-
-  - name: Ana Paula Melo
-    orcid: "0000-0002-0815-7964"
-    names:
-      - Ana Paula Melo
-      - Ana P. Melo
-      - A.P. Melo
 
   - name: Da Yan
     orcid: "0000-0003-2399-723X"
