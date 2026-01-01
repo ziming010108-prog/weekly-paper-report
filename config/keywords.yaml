@@ -1,15 +1,9 @@
 # ./config/keywords.yaml
 keywords:
-  - indoor environmental quality
-  - IEQ
-  - thermal comfort
+  - historical building
+  - heritage building
+  - green retrofit
   - indoor air quality
-  - IAQ
-  - lighting
-  - acoustic
-  - user behavior modelling
-  - CO2
-  - CO2 distribution
-  - occupancy detection
-  - sensor
-  - gamification
+  - sustainable renovation
+  - passive design
+ 
