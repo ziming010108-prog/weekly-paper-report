@@ -1,16 +1,14 @@
-# followed_authors.yaml
+# followed-authors.yaml
 followed_authors:
-  - name:Wang Jianguo
+  - name: Jianguo Wang  # 冒号后加空格
     orcid: "0000-0020-4172-6857"
     names:
-      - Jianguo Wang 
-
-  - name: Da Yan
+      - Jianguo Wang
+  - name: Da Yan  # 冒号后加空格
     orcid: "0000-0003-2399-723X"
     names:
       - Da Yan
-
-  - name: Dirk Müller
+  - name: Dirk Müller  # 冒号后加空格
     orcid: "0000-0002-6106-6607"
     names:
       - Dirk Müller
