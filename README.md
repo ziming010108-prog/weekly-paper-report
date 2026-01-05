@@ -75,7 +75,7 @@ An example weekly report is available at:
 👉 [Weekly Paper Report](https://hqrrr.github.io/weekly-paper-report/)
 
 <!-- REPORT_UPDATE_START -->
-🕒 Last report update: **2026-01-01 14:55**
+🕒 Last report update: **2026-01-05 03:49**
 <!-- REPORT_UPDATE_END -->
 
 <img src="_pics/demo_screenshot.png" alt="Demo Screenshot" style="width:350px;">
